@@ -13,32 +13,32 @@
     --gold-hi:#FFF3A3;
     --bg:#0b0f12;
 
-    /* Glow moved up + right for crystal top */
-    --glow-x: 82%;
+    /* Glow moved slightly left; 20% smaller; tuned for crystal top */
+    --glow-x: 78%;
     --glow-y: 36%;
-    --glow-w: 264px;
-    --glow-h: 458px;
+    --glow-w: 211px; /* 264 * 0.8 */
+    --glow-h: 366px; /* 458 * 0.8 */
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:#e6ecf1;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
   .bg{position:fixed;inset:0;overflow:hidden;z-index:0}
   .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.04) saturate(1.02)}
 
-  /* Slower coordinated glow */
+  /* Slower coordinated glow (10% less bright) */
   @keyframes lavaPulse6{
-    0%,100% { opacity:.16; filter:brightness(1.02); }
-    25%     { opacity:.30; filter:brightness(1.18); }
-    50%     { opacity:.08; filter:brightness(0.92); }
-    75%     { opacity:.36; filter:brightness(1.24); }
+    0%,100% { opacity:.12; filter:brightness(1.0); }
+    25%     { opacity:.24; filter:brightness(1.12); }
+    50%     { opacity:.06; filter:brightness(0.92); }
+    75%     { opacity:.30; filter:brightness(1.18); }
   }
 
   .bg::after{
     content:""; position:absolute; inset:0; pointer-events:none;
     background:
       radial-gradient( var(--glow-w) var(--glow-h) at var(--glow-x) var(--glow-y),
-        rgba(255,220,170,.55), rgba(255,170,120,.18) 45%, rgba(255,140,90,.06) 70%, transparent 72%),
-      radial-gradient( 120px 220px at calc(var(--glow-x) + 5%) calc(var(--glow-y) - 5%),
-        rgba(255,235,205,.25), rgba(255,170,120,.05) 60%, transparent 65%);
+        rgba(255,220,170,.45), rgba(255,170,120,.14) 45%, rgba(255,140,90,.04) 70%, transparent 72%),
+      radial-gradient( 96px 180px at calc(var(--glow-x) + 5%) calc(var(--glow-y) - 5%),
+        rgba(255,235,205,.18), rgba(255,170,120,.04) 60%, transparent 65%);
     mix-blend-mode: screen;
     animation: lavaPulse6 6s ease-in-out infinite;
   }
@@ -57,15 +57,18 @@
     /* Title stays static – no animation */
   }
 
-  /* SUPER-WHITE slogan glow (only slogan animates) */
+  /* SUPER-WHITE slogan glow: fully invisible -> fully white */
   .brand .slogan{
-    font-size:14px; opacity:.98;
+    font-size:14px;
     color:#ffffff;
-    text-shadow:
-      0 0 10px rgba(255,255,255,.85),
-      0 0 18px rgba(255,255,255,.55),
-      0 2px 0 rgba(0,0,0,.7);
-    animation: lavaPulse6 6s ease-in-out infinite;
+    animation: sloganPulse 6s ease-in-out infinite;
+  }
+  @keyframes sloganPulse{
+    0%   { opacity:0;   text-shadow: none; }
+    35%  { opacity:.75; text-shadow: 0 0 8px rgba(255,255,255,.65), 0 0 14px rgba(255,255,255,.35), 0 2px 0 rgba(0,0,0,.7); }
+    55%  { opacity:1;   text-shadow: 0 0 14px rgba(255,255,255,.95), 0 0 26px rgba(255,255,255,.65), 0 2px 0 rgba(0,0,0,.75); }
+    80%  { opacity:.6;  text-shadow: 0 0 6px rgba(255,255,255,.45), 0 0 10px rgba(255,255,255,.25), 0 2px 0 rgba(0,0,0,.6); }
+    100% { opacity:0;   text-shadow: none; }
   }
 
   .frame{position:fixed;inset:0;display:grid;place-items:end center;padding-bottom:10vh; z-index:4}
@@ -79,9 +82,9 @@
   @keyframes blinkDot{0%,50%{opacity:1}50.1%,100%{opacity:0}}
 
   .bar{display:flex;gap:10px;align-items:center}
-  .email{flex:1;padding:10px 12px;border:2px solid #7e684a;border-radius:6px;background:#eadab8;color:#232016;
+  .email{flex:1;padding:10px 12px;border:2px solid #7e684a;border-radius:8px;background:#eadab8;color:#232016;
          font-family:'Press Start 2P', monospace;font-size:12px}
-  .btn{padding:10px 14px;border:2px solid #332514;border-radius:6px;background:#8f6b2a;color:#fff;
+  .btn{padding:10px 14px;border:2px solid #332514;border-radius:8px;background:#8f6b2a;color:#fff;
        font-family:'Press Start 2P', monospace; font-size:12px; cursor:pointer;
        box-shadow:0 4px 0 #332514;}
   .btn:active{transform:translateY(2px); box-shadow:0 2px 0 #332514}

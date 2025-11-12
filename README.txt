@@ -1,9 +1,8 @@
-Duel PVP — Final Site (v6)
+Duel PVP — Final Site (v7)
 
-- Text moved back to corner (top-left), same size as previous (28px title).
-- DUEL PVP title is static (no fade). Only the slogan pulses slowly.
-- Logo removed completely.
-- Glow default moved up-right; refine with debug controls:
-    Add ?debug=1 to URL → drag the dot or use arrow keys.
-    Optional URL params: ?gx=78&gy=48&gw=264px&gh=458px
-- Keep the values you like by copying into :root in index.html.
+- Glow moved up and right (x=82%, y=36%) to hit upper crystal area; slower 6s pulse.
+- DUEL PVP stays static; only the slogan glows with super-white sunlight effect.
+- Keep debug controls: add ?debug=1 to drag the glow or use arrow keys.
+- You can also test with URL params: ?gx=82&gy=36&gw=264px&gh=458px
+
+Replace assets/bg-wildy.png with your exact background if needed.

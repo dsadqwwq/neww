@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duel PVP — Enter the Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#FFD64D;
+    --gold-hi:#FFF3A3;
+    --bg:#0b0f12;
+
+    /* Position/size the lava glow over your fissure */
+    --glow-x: 28%;
+    --glow-y: 62%;
+    --glow-w: 260px;
+    --glow-h: 520px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:#e6ecf1;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+  .bg{position:fixed;inset:0;overflow:hidden}
+  .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.04) saturate(1.02)}
+
+  /* LAVA FLICKER OVERLAY */
+  .bg::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient( var(--glow-w) var(--glow-h) at var(--glow-x) var(--glow-y),
+        rgba(255,190,40,.55), rgba(255,140,0,.18) 45%, rgba(255,110,0,.06) 70%, transparent 72%),
+      radial-gradient( 140px 260px at calc(var(--glow-x) + 6%) calc(var(--glow-y) - 6%),
+        rgba(255,190,40,.25), rgba(255,140,0,.05) 60%, transparent 65%);
+    mix-blend-mode: screen;
+    animation: lavaFlicker 2.6s infinite ease-in-out;
+  }
+  @keyframes lavaFlicker{
+    0%,100% { opacity:.18; filter:brightness(1.1) }
+    20%     { opacity:.42; filter:brightness(1.6) }
+    40%     { opacity:.10; filter:brightness(.9) }
+    60%     { opacity:.50; filter:brightness(1.8) }
+    80%     { opacity:.28; filter:brightness(1.3) }
+  }
+
+  .logo{position:fixed;left:22px;top:18px;font-family:'Press Start 2P', monospace;
+        color:var(--gold); text-shadow:6px 6px 0 #000, 0 -2px 0 rgba(255,243,163,.4); letter-spacing:.06em}
+  .logo small{display:block;font-size:12px;opacity:.9; margin-top:6px}
+
+  /* Animated glowing PvP logo */
+  .mark{
+    position:fixed; left:min(6vw,48px); bottom:min(10vh,80px);
+    width:min(22vw, 260px); aspect-ratio:1/1;
+    image-rendering:pixelated;
+    filter: drop-shadow(8px 8px 0px #000);
+    animation: pvpGlow 2.2s ease-in-out infinite;
+  }
+  @keyframes pvpGlow{
+    0%,100% { filter: drop-shadow(8px 8px 0 #000) brightness(1); }
+    25%     { filter: drop-shadow(8px 8px 0 #000) brightness(1.25); }
+    50%     { filter: drop-shadow(8px 8px 0 #000) brightness(0.9); }
+    75%     { filter: drop-shadow(8px 8px 0 #000) brightness(1.35); }
+  }
+
+  .frame{position:fixed;inset:0;display:grid;place-items:end center;padding-bottom:10vh}
+  .panel{width:min(680px,92vw); background:#c9b083; border:2px solid #5a4328; border-radius:8px;
+         box-shadow:0 14px 0 #2b2015, inset 0 0 0 2px rgba(255,255,255,.25);
+         padding:16px 18px 18px; font-family:'Press Start 2P', monospace; color:#232016;
+         background-image:repeating-linear-gradient(0deg, rgba(0,0,0,.05), rgba(0,0,0,.05) 2px, transparent 2px, transparent 6px);}
+
+  .sys{font-size:14px;margin-bottom:12px}
+  .blink{animation:blinkDot 1s infinite}
+  @keyframes blinkDot{0%,50%{opacity:1}50.1%,100%{opacity:0}}
+
+  .bar{display:flex;gap:10px;align-items:center}
+  .email{flex:1;padding:10px 12px;border:2px solid #7e684a;border-radius:6px;background:#eadab8;color:#232016;
+         font-family:'Press Start 2P', monospace;font-size:12px}
+  .btn{padding:10px 14px;border:2px solid #332514;border-radius:6px;background:#8f6b2a;color:#fff;
+       font-family:'Press Start 2P', monospace; font-size:12px; cursor:pointer;
+       box-shadow:0 4px 0 #332514;}
+  .btn:active{transform:translateY(2px); box-shadow:0 2px 0 #332514}
+
+  .footer{position:fixed;right:20px;bottom:16px;font-size:12px;opacity:.8}
+</style>
+</head>
+<body>
+  <div class="bg">
+    <img src="assets/bg-wildy.png" alt="Wilderness background">
+  </div>
+
+  <img src="assets/logo-pvp.png" alt="PvP Rune Logo" class="mark" />
+
+  <div class="logo">
+    DUEL PVP
+    <small>Battle • Earn • Dominate</small>
+  </div>
+
+  <main class="frame">
+    <section class="panel" role="region" aria-label="Rune-style dialogue">
+      <div class="sys">Welcome to the arena<span class="blink">.</span></div>
+      <div class="bar">
+        <label style="min-width:70px">Email:</label>
+        <input id="email" class="email" type="email" placeholder="name@example.com">
+        <button class="btn" id="join">JOIN</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">© 2025 Duel PVP</div>
+
+  <script>
+    // Optional debug aid to align glow: add ?debug=1 to URL to see the overlay bounds
+    if (new URLSearchParams(location.search).get('debug') === '1') {
+      const style = document.createElement('style');
+      style.textContent = '.bg::after{ outline:1px dashed rgba(255,255,255,.35) }';
+      document.head.appendChild(style);
+    }
+    document.getElementById('join').addEventListener('click', () => {
+      const v = document.getElementById('email').value.trim();
+      alert(v ? `Saved: ${v}` : 'Enter an email first');
+    });
+  </script>
+</body>
+</html>

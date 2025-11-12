@@ -13,7 +13,7 @@
     --gold-hi:#FFF3A3;
     --bg:#0b0f12;
 
-    /* Glow positioned for right-side stone by default; adjust to your crack */
+    /* Default glow position/size; can be changed live via debug controls */
     --glow-x: 72%;
     --glow-y: 58%;
     --glow-w: 264px;
@@ -21,10 +21,9 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:#e6ecf1;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-  .bg{position:fixed;inset:0;overflow:hidden}
+  .bg{position:fixed;inset:0;overflow:hidden;z-index:0}
   .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.04) saturate(1.02)}
 
-  /* COORDINATED SLOW GLOW (applies to bg overlay, logo, title, slogan) */
   @keyframes lavaPulse{
     0%,100% { opacity:.18; filter:brightness(1.06); }
     25%     { opacity:.34; filter:brightness(1.22); }
@@ -32,7 +31,6 @@
     75%     { opacity:.40; filter:brightness(1.28); }
   }
 
-  /* Lava overlay uses same timing */
   .bg::after{
     content:""; position:absolute; inset:0; pointer-events:none;
     background:
@@ -44,21 +42,28 @@
     animation: lavaPulse 4s ease-in-out infinite;
   }
 
-  /* Logo pinned to corner (top-left) */
+  /* Layering fixes */
+  .mark{ z-index: 5; }
+  .brand{ z-index: 6; }
+  .frame{ z-index: 4; }
+  .footer{ z-index: 3; }
+
+  /* Logo pinned to corner */
   .mark{
     position:fixed; left:18px; top:14px;
     width:86px; height:86px; object-fit:contain; image-rendering:pixelated;
     filter: drop-shadow(6px 6px 0px #000) brightness(1);
     animation: lavaPulse 4s ease-in-out infinite;
-    /* hide square edges if PNG isn't transparent */
     -webkit-clip-path: circle(48% at 50% 50%);
             clip-path: circle(48% at 50% 50%);
   }
 
-  /* Brand block moved to bottom-center above the panel */
+  /* Brand block bottom-center */
   .brand{
     position:fixed; left:50%; bottom:16vh; transform:translateX(-50%);
     text-align:center; font-family:'Press Start 2P', monospace; line-height:1.2;
+    color:#e6ecf1;
+    text-shadow: 0 2px 0 rgba(0,0,0,.8);
   }
   .brand .title{
     color:var(--gold); text-shadow:6px 6px 0 #000, 0 -2px 0 rgba(255,243,163,.4);
@@ -66,7 +71,7 @@
     animation: lavaPulse 4s ease-in-out infinite;
   }
   .brand .slogan{
-    font-size:14px; opacity:.96;
+    font-size:14px; opacity:.98;
     animation: lavaPulse 4s ease-in-out infinite;
   }
 
@@ -88,8 +93,18 @@
        box-shadow:0 4px 0 #332514;}
   .btn:active{transform:translateY(2px); box-shadow:0 2px 0 #332514}
 
-  .footer{position:fixed;right:20px;bottom:16px;font-size:12px;opacity:.8}
-  .debug .bg::after{ outline:1px dashed rgba(255,255,255,.35) }
+  .footer{position:fixed;right:20px;bottom:16px;font-size:12px;opacity:.85}
+
+  /* Debug UI for glow nudging (visible with ?debug=1) */
+  .debug .glow-handle{
+    position:fixed; width:18px; height:18px; border-radius:50%; background:rgba(255,190,40,.9);
+    box-shadow:0 0 12px rgba(255,120,0,.9), 0 0 28px rgba(255,120,0,.6) inset;
+    border:2px solid #000; cursor:move; z-index:20; transform:translate(-50%,-50%);
+  }
+  .debug .hint{
+    position:fixed; left:12px; bottom:12px; z-index:20; font:12px/1.4 'Press Start 2P', monospace;
+    background:rgba(0,0,0,.55); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.2);
+  }
 </style>
 </head>
 <body>
@@ -120,12 +135,69 @@
   <div class="footer">© 2025 Duel PVP</div>
 
   <script>
-    // Glow alignment helper
-    if (new URLSearchParams(location.search).get('debug') === '1') {
-      const style = document.createElement('style');
-      style.textContent = '.bg::after{ outline:1px dashed rgba(255,255,255,.35) }';
-      document.head.appendChild(style);
+    // Toggle debug features with ?debug=1
+    const params = new URLSearchParams(location.search);
+    const debug = params.get('debug') === '1';
+
+    // Apply URL param overrides for glow position/size if present
+    const gx = params.get('gx'), gy = params.get('gy'), gw = params.get('gw'), gh = params.get('gh');
+    if (gx) document.documentElement.style.setProperty('--glow-x', gx + (gx.includes('%') ? '' : '%'));
+    if (gy) document.documentElement.style.setProperty('--glow-y', gy + (gy.includes('%') ? '' : '%'));
+    if (gw) document.documentElement.style.setProperty('--glow-w', gw + (gw.match(/px|%/) ? '' : 'px'));
+    if (gh) document.documentElement.style.setProperty('--glow-h', gh + (gh.match(/px|%/) ? '' : 'px'));
+
+    if (debug) {
+      // Create a draggable handle to position the glow center
+      const handle = document.createElement('div');
+      handle.className = 'glow-handle';
+      document.body.appendChild(handle);
+
+      const getNum = (v) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(v));
+      const setPos = (xPct, yPct) => {
+        document.documentElement.style.setProperty('--glow-x', xPct + '%');
+        document.documentElement.style.setProperty('--glow-y', yPct + '%');
+        // position handle
+        handle.style.left = xPct + 'vw';
+        handle.style.top = yPct + 'vh';
+      };
+
+      // Initialize handle at current CSS vars (approx translate % of viewport)
+      const initX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-x'));
+      const initY = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-y'));
+      handle.style.left = initX + 'vw';
+      handle.style.top = initY + 'vh';
+
+      let dragging = false;
+      handle.addEventListener('mousedown', () => dragging = true);
+      window.addEventListener('mouseup', () => dragging = false);
+      window.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const xPct = (e.clientX / window.innerWidth) * 100;
+        const yPct = (e.clientY / window.innerHeight) * 100;
+        setPos(Math.max(0, Math.min(100, xPct)), Math.max(0, Math.min(100, yPct)));
+      });
+
+      // Keyboard nudge: arrow keys move the glow center by 0.5%
+      window.addEventListener('keydown', (e) => {
+        const step = e.shiftKey ? 2 : 0.5;
+        let x = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-x'));
+        let y = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-y'));
+        if (e.key === 'ArrowLeft') x -= step;
+        if (e.key === 'ArrowRight') x += step;
+        if (e.key === 'ArrowUp') y -= step;
+        if (e.key === 'ArrowDown') y += step;
+        x = Math.max(0, Math.min(100, x));
+        y = Math.max(0, Math.min(100, y));
+        setPos(x, y);
+      });
+
+      // Helper hint
+      const hint = document.createElement('div');
+      hint.className = 'hint';
+      hint.textContent = 'Debug: drag the dot or use arrow keys (Shift = faster). Position saves via URL: ?gx=..&gy=..';
+      document.body.appendChild(hint);
     }
+
     document.getElementById('join').addEventListener('click', () => {
       const v = document.getElementById('email').value.trim();
       alert(v ? `Saved: ${v}` : 'Enter an email first');

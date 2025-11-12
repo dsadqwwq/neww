@@ -13,9 +13,9 @@
     --gold-hi:#FFF3A3;
     --bg:#0b0f12;
 
-    /* Default glow position/size; can be changed live via debug controls */
-    --glow-x: 72%;
-    --glow-y: 58%;
+    /* Glow moved up-right by default; refine via debug = 1 */
+    --glow-x: 78%;
+    --glow-y: 48%;
     --glow-w: 264px;
     --glow-h: 458px;
   }
@@ -24,6 +24,7 @@
   .bg{position:fixed;inset:0;overflow:hidden;z-index:0}
   .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:contrast(1.04) saturate(1.02)}
 
+  /* Coordinated slow glow (used by bg overlay + slogan only) */
   @keyframes lavaPulse{
     0%,100% { opacity:.18; filter:brightness(1.06); }
     25%     { opacity:.34; filter:brightness(1.22); }
@@ -42,40 +43,26 @@
     animation: lavaPulse 4s ease-in-out infinite;
   }
 
-  /* Layering fixes */
-  .mark{ z-index: 5; }
-  .brand{ z-index: 6; }
-  .frame{ z-index: 4; }
-  .footer{ z-index: 3; }
-
-  /* Logo pinned to corner */
-  .mark{
-    position:fixed; left:18px; top:14px;
-    width:86px; height:86px; object-fit:contain; image-rendering:pixelated;
-    filter: drop-shadow(6px 6px 0px #000) brightness(1);
-    animation: lavaPulse 4s ease-in-out infinite;
-    -webkit-clip-path: circle(48% at 50% 50%);
-            clip-path: circle(48% at 50% 50%);
-  }
-
-  /* Brand block bottom-center */
+  /* Header text block back in corner (top-left) */
   .brand{
-    position:fixed; left:50%; bottom:16vh; transform:translateX(-50%);
-    text-align:center; font-family:'Press Start 2P', monospace; line-height:1.2;
+    position:fixed; left:18px; top:14px; z-index:6;
+    text-align:left; font-family:'Press Start 2P', monospace; line-height:1.2;
     color:#e6ecf1;
-    text-shadow: 0 2px 0 rgba(0,0,0,.8);
   }
   .brand .title{
     color:var(--gold); text-shadow:6px 6px 0 #000, 0 -2px 0 rgba(255,243,163,.4);
-    letter-spacing:.06em; font-size:28px; margin-bottom:8px;
-    animation: lavaPulse 4s ease-in-out infinite;
+    letter-spacing:.06em;
+    font-size:28px; /* keep current size */
+    margin-bottom:6px;
+    /* NOTE: no animation on the title per request */
   }
   .brand .slogan{
     font-size:14px; opacity:.98;
-    animation: lavaPulse 4s ease-in-out infinite;
+    animation: lavaPulse 4s ease-in-out infinite; /* only slogan pulses */
+    text-shadow:0 2px 0 rgba(0,0,0,.85);
   }
 
-  .frame{position:fixed;inset:0;display:grid;place-items:end center;padding-bottom:10vh}
+  .frame{position:fixed;inset:0;display:grid;place-items:end center;padding-bottom:10vh; z-index:4}
   .panel{width:min(680px,92vw); background:#c9b083; border:2px solid #5a4328; border-radius:8px;
          box-shadow:0 14px 0 #2b2015, inset 0 0 0 2px rgba(255,255,255,.25);
          padding:16px 18px 18px; font-family:'Press Start 2P', monospace; color:#232016;
@@ -93,9 +80,8 @@
        box-shadow:0 4px 0 #332514;}
   .btn:active{transform:translateY(2px); box-shadow:0 2px 0 #332514}
 
-  .footer{position:fixed;right:20px;bottom:16px;font-size:12px;opacity:.85}
-
-  /* Debug UI for glow nudging (visible with ?debug=1) */
+  .footer{position:fixed;right:20px;bottom:16px;font-size:12px;opacity:.85; z-index:3}
+  .debug .bg::after{ outline:1px dashed rgba(255,255,255,.35) }
   .debug .glow-handle{
     position:fixed; width:18px; height:18px; border-radius:50%; background:rgba(255,190,40,.9);
     box-shadow:0 0 12px rgba(255,120,0,.9), 0 0 28px rgba(255,120,0,.6) inset;
@@ -112,10 +98,7 @@
     <img src="assets/bg-wildy.png" alt="Wilderness background">
   </div>
 
-  <!-- Logo in corner -->
-  <img src="assets/logo-pvp.png" alt="PvP Rune Logo" class="mark" />
-
-  <!-- Brand block bottom-center -->
+  <!-- Text back in the corner (no logo) -->
   <div class="brand">
     <div class="title">DUEL PVP</div>
     <div class="slogan">Real time, real skill, real rewards.</div>
@@ -135,11 +118,9 @@
   <div class="footer">© 2025 Duel PVP</div>
 
   <script>
-    // Toggle debug features with ?debug=1
+    // Debug: drag / arrow keys to position lava glow on the crack
     const params = new URLSearchParams(location.search);
     const debug = params.get('debug') === '1';
-
-    // Apply URL param overrides for glow position/size if present
     const gx = params.get('gx'), gy = params.get('gy'), gw = params.get('gw'), gh = params.get('gh');
     if (gx) document.documentElement.style.setProperty('--glow-x', gx + (gx.includes('%') ? '' : '%'));
     if (gy) document.documentElement.style.setProperty('--glow-y', gy + (gy.includes('%') ? '' : '%'));
@@ -147,21 +128,17 @@
     if (gh) document.documentElement.style.setProperty('--glow-h', gh + (gh.match(/px|%/) ? '' : 'px'));
 
     if (debug) {
-      // Create a draggable handle to position the glow center
       const handle = document.createElement('div');
       handle.className = 'glow-handle';
       document.body.appendChild(handle);
 
-      const getNum = (v) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(v));
       const setPos = (xPct, yPct) => {
         document.documentElement.style.setProperty('--glow-x', xPct + '%');
         document.documentElement.style.setProperty('--glow-y', yPct + '%');
-        // position handle
         handle.style.left = xPct + 'vw';
         handle.style.top = yPct + 'vh';
       };
 
-      // Initialize handle at current CSS vars (approx translate % of viewport)
       const initX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-x'));
       const initY = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-y'));
       handle.style.left = initX + 'vw';
@@ -177,7 +154,6 @@
         setPos(Math.max(0, Math.min(100, xPct)), Math.max(0, Math.min(100, yPct)));
       });
 
-      // Keyboard nudge: arrow keys move the glow center by 0.5%
       window.addEventListener('keydown', (e) => {
         const step = e.shiftKey ? 2 : 0.5;
         let x = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow-x'));
@@ -191,10 +167,9 @@
         setPos(x, y);
       });
 
-      // Helper hint
       const hint = document.createElement('div');
       hint.className = 'hint';
-      hint.textContent = 'Debug: drag the dot or use arrow keys (Shift = faster). Position saves via URL: ?gx=..&gy=..';
+      hint.textContent = 'Debug: drag the dot or use arrow keys (Shift = faster). Save final values in :root (--glow-x/--glow-y/--glow-w/--glow-h).';
       document.body.appendChild(hint);
     }
 

@@ -1,10 +1,9 @@
-Duel PVP — Final Site (v5)
+Duel PVP — Final Site (v6)
 
-- FIX: Brand text layered above everything (no disappearing).
-- COORDINATED SLOW GLOW stays (4s cycle).
-- NEW: Live glow alignment in debug mode.
-  Use `?debug=1` to show a draggable dot. Drag or use arrow keys to position the glow on the rock crack.
-  You can also pass URL params to save positions: ?gx=72&gy=58&gw=264px&gh=458px
-- Logo pinned top-left; brand block bottom-center. Blinking dot after 'arena' intact.
-
-Deploy as static to Vercel. Replace assets/logo-pvp.png with a transparent PNG for perfect edges.
+- Text moved back to corner (top-left), same size as previous (28px title).
+- DUEL PVP title is static (no fade). Only the slogan pulses slowly.
+- Logo removed completely.
+- Glow default moved up-right; refine with debug controls:
+    Add ?debug=1 to URL → drag the dot or use arrow keys.
+    Optional URL params: ?gx=78&gy=48&gw=264px&gh=458px
+- Keep the values you like by copying into :root in index.html.

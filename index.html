@@ -13,10 +13,10 @@
     --gold-hi:#FFF3A3;
     --bg:#0b0f12;
 
-    /* Position/size the lava glow over your fissure */
-    --glow-x: 28%;
-    --glow-y: 62%;
-    --glow-w: 260px;
+    /* Glow moved to the OTHER side (right by default). Tweak as needed. */
+    --glow-x: 72%;
+    --glow-y: 58%;
+    --glow-w: 300px;
     --glow-h: 520px;
   }
   *{box-sizing:border-box}
@@ -47,19 +47,24 @@
         color:var(--gold); text-shadow:6px 6px 0 #000, 0 -2px 0 rgba(255,243,163,.4); letter-spacing:.06em}
   .logo small{display:block;font-size:12px;opacity:.9; margin-top:6px}
 
-  /* Animated glowing PvP logo */
+  /* Animated glowing PvP logo — SMALLER and up by the title.
+     clip-path hides a square background until a transparent PNG is used. */
   .mark{
-    position:fixed; left:min(6vw,48px); bottom:min(10vh,80px);
-    width:min(22vw, 260px); aspect-ratio:1/1;
+    position:fixed; left:180px; top:10px;
+    width:110px; height:110px; object-fit:contain;
     image-rendering:pixelated;
-    filter: drop-shadow(8px 8px 0px #000);
+    filter: drop-shadow(6px 6px 0px #000);
     animation: pvpGlow 2.2s ease-in-out infinite;
+    /* Remove square edges if the PNG isn't transparent yet */
+    -webkit-clip-path: circle(48% at 50% 50%);
+            clip-path: circle(48% at 50% 50%);
+    background: transparent;
   }
   @keyframes pvpGlow{
-    0%,100% { filter: drop-shadow(8px 8px 0 #000) brightness(1); }
-    25%     { filter: drop-shadow(8px 8px 0 #000) brightness(1.25); }
-    50%     { filter: drop-shadow(8px 8px 0 #000) brightness(0.9); }
-    75%     { filter: drop-shadow(8px 8px 0 #000) brightness(1.35); }
+    0%,100% { filter: drop-shadow(6px 6px 0 #000) brightness(1); }
+    25%     { filter: drop-shadow(6px 6px 0 #000) brightness(1.25); }
+    50%     { filter: drop-shadow(6px 6px 0 #000) brightness(0.9); }
+    75%     { filter: drop-shadow(6px 6px 0 #000) brightness(1.35); }
   }
 
   .frame{position:fixed;inset:0;display:grid;place-items:end center;padding-bottom:10vh}
@@ -81,6 +86,7 @@
   .btn:active{transform:translateY(2px); box-shadow:0 2px 0 #332514}
 
   .footer{position:fixed;right:20px;bottom:16px;font-size:12px;opacity:.8}
+  .debug .bg::after{ outline:1px dashed rgba(255,255,255,.35) }
 </style>
 </head>
 <body>
@@ -88,12 +94,13 @@
     <img src="assets/bg-wildy.png" alt="Wilderness background">
   </div>
 
-  <img src="assets/logo-pvp.png" alt="PvP Rune Logo" class="mark" />
-
   <div class="logo">
     DUEL PVP
     <small>Battle • Earn • Dominate</small>
   </div>
+
+  <!-- Smaller animated logo near the title -->
+  <img src="assets/logo-pvp.png" alt="PvP Rune Logo" class="mark" />
 
   <main class="frame">
     <section class="panel" role="region" aria-label="Rune-style dialogue">
@@ -109,11 +116,8 @@
   <div class="footer">© 2025 Duel PVP</div>
 
   <script>
-    // Optional debug aid to align glow: add ?debug=1 to URL to see the overlay bounds
     if (new URLSearchParams(location.search).get('debug') === '1') {
-      const style = document.createElement('style');
-      style.textContent = '.bg::after{ outline:1px dashed rgba(255,255,255,.35) }';
-      document.head.appendChild(style);
+      document.body.classList.add('debug');
     }
     document.getElementById('join').addEventListener('click', () => {
       const v = document.getElementById('email').value.trim();
